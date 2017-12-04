@@ -8,23 +8,36 @@ function MyArray(initialCapacity) {
 }
 
 MyArray.prototype.length = function () {
-
+    return this.size;
 };
 
 MyArray.prototype.push = function (value) {
-
+    this.elements[this.size] = value;
+    this.size += 1;
 };
 
 MyArray.prototype.get = function (index) {
-
+    return this.elements[index];
 };
 
 MyArray.prototype.set = function (index, value) {
+    const keyChosen = this.elements[index];
 
+    if (keyChosen >= 0) {
+        this.elements[index] = value;
+    } else {
+        throw 'Index of item to set must be greater than 0';
+    }
 };
 
-MyArray.of = function () {
+MyArray.of = function (...args) {
+    let populatedArray = new MyArray();
 
+    for (i = 0; i < args.length; i += 1) {
+        populatedArray.push(args[i]);
+    }
+
+    return populatedArray;
 };
 
 MyArray.prototype.pop = function () {
