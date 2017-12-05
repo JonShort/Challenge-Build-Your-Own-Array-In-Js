@@ -12,7 +12,9 @@ MyArray.prototype.length = function () {
 };
 
 MyArray.prototype.push = function (value) {
-    this.elements[this.size] = value;
+    const lastItem = this.length();
+
+    this.elements[lastItem] = value;
     this.size += 1;
 };
 
@@ -21,31 +23,61 @@ MyArray.prototype.get = function (index) {
 };
 
 MyArray.prototype.set = function (index, value) {
-    const keyChosen = this.elements[index];
+    const isValidIndex = index >= 0;
+    const isExistingItem = isValidIndex && index < this.length();
 
-    if (keyChosen >= 0) {
+    if (isExistingItem) {
         this.elements[index] = value;
-    } else {
-        throw 'Index of item to set must be greater than 0';
+        return null;
     }
+
+    if (isValidIndex) {
+        this.elements[index] = value;
+        this.size = (index + 1);
+        return null;
+    }
+
+    throw `Can't set value of item in position ${index} - index is below 0`;
 };
 
 MyArray.of = function (...args) {
-    let populatedArray = new MyArray();
+    const baseArray = new MyArray(args.length);
+    let populatedArray = baseArray;
 
     for (i = 0; i < args.length; i += 1) {
-        populatedArray.push(args[i]);
+        populatedArray.set(i, args[i]);
     }
 
     return populatedArray;
 };
 
 MyArray.prototype.pop = function () {
+    if (this.length() > 0) {
+        const finalIndex = (this.length() - 1);
+        const finalItem = this.elements[finalIndex];
+    
+        this.elements[finalIndex] = undefined;
+        this.size -= 1;
 
+        return finalItem;
+    }
+
+    return undefined;
 };
 
 MyArray.prototype.concat = function (other) {
+    const overallLength = this.length() + other.length();
+    let newArray = new MyArray(overallLength);
 
+    for (let i = 0; i < overallLength; i += 1) {
+        if (i < this.length()) {
+            newArray.set(i, this.get(i));
+        } else {
+            newArray.set(i, other.get(i - this.length()));
+        }
+    }
+
+    return newArray;
 };
 
 MyArray.prototype.indexOf = function (element) {
