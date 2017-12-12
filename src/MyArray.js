@@ -170,11 +170,34 @@ MyArray.prototype.findIndex = function (fn) {
 };
 
 MyArray.prototype.equals = function (other) {
+    const thisLength = this.length();
+    const otherLength = other.length();
+    const hasDifferentLength = thisLength !== otherLength;
 
+    const progressiveCompare = () => {
+        let matches = true;
+
+        for (let i = 0; i < this.length(); i += 1) {
+            if (this.get(i) !== other.get(i)) {
+                matches = false;
+                break;
+            }
+        }
+
+        return matches;
+    };
+
+    if (hasDifferentLength) {
+        return false;
+    }
+
+    return progressiveCompare();
 };
 
 MyArray.prototype.forEach = function (fn) {
-
+    for (let i = 0; i < this.length(); i += 1) {
+        fn(this.get(i), i);
+    }
 };
 
 MyArray.prototype.join = function (separator) {
