@@ -81,11 +81,11 @@ MyArray.prototype.concat = function (other) {
 };
 
 MyArray.prototype.indexOf = function (element) {
-    const getIndex = () => {
+    const getIndex = (matcher) => {
         let index = -1;
         for (let i = 0; i < this.length(); i += 1) {
             const value = this.get(i);
-            if (value === element) {
+            if (value === matcher) {
                 index = i;
                 break;
             }
@@ -94,16 +94,16 @@ MyArray.prototype.indexOf = function (element) {
         return index;
     };
 
-    return getIndex();
+    return getIndex(element);
 };
 
 MyArray.prototype.lastIndexOf = function (element) {
-    const getLastIndex = () => {
+    const getLastIndex = (matcher) => {
         let index = -1;
 
         for (let i = this.length(); i > 0; i -= 1) {
             const value = this.get(i);
-            if (value === element) {
+            if (value === matcher) {
                 index = i;
                 break;
             }
@@ -112,16 +112,16 @@ MyArray.prototype.lastIndexOf = function (element) {
         return index;
     };
 
-    return getLastIndex();
+    return getLastIndex(element);
 };
 
 MyArray.prototype.includes = function (element) {
-    const doesExist = () => {
+    const doesExist = (matcher) => {
         let exists = false;
 
         for (let i = 0; i < this.length(); i += 1) {
             const value = this.get(i);
-            if (value === element) {
+            if (value === matcher) {
                 exists = true;
                 break;
             }
@@ -130,16 +130,16 @@ MyArray.prototype.includes = function (element) {
         return exists;
     };
 
-    return doesExist();
+    return doesExist(element);
 };
 
 MyArray.prototype.find = function (fn) {
-    const getFirst = () => {
+    const getFirst = (func) => {
         let value = undefined;
 
         for (let i = 0; i < this.length(); i += 1) {
             const indexValue = this.get(i);
-            if (fn(indexValue)) {
+            if (func(indexValue)) {
                 value = indexValue;
                 break;
             }
@@ -148,16 +148,16 @@ MyArray.prototype.find = function (fn) {
         return value;
     };
 
-    return getFirst();
+    return getFirst(fn);
 };
 
 MyArray.prototype.findIndex = function (fn) {
-    const getIndex = () => {
+    const getIndex = (func) => {
         let index = -1;
 
         for (let i = 0; i < this.length(); i += 1) {
             const value = this.get(i);
-            if (fn(value)) {
+            if (func(value)) {
                 index = i;
                 break;
             }
@@ -166,7 +166,7 @@ MyArray.prototype.findIndex = function (fn) {
         return index;
     };
 
-    return getIndex();
+    return getIndex(fn);
 };
 
 MyArray.prototype.equals = function (other) {
@@ -174,11 +174,11 @@ MyArray.prototype.equals = function (other) {
     const otherLength = other.length();
     const hasDifferentLength = thisLength !== otherLength;
 
-    const progressiveCompare = () => {
+    const progressiveCompare = (array) => {
         let matches = true;
 
         for (let i = 0; i < this.length(); i += 1) {
-            if (this.get(i) !== other.get(i)) {
+            if (this.get(i) !== array.get(i)) {
                 matches = false;
                 break;
             }
@@ -191,7 +191,7 @@ MyArray.prototype.equals = function (other) {
         return false;
     }
 
-    return progressiveCompare();
+    return progressiveCompare(other);
 };
 
 MyArray.prototype.forEach = function (fn) {
@@ -201,11 +201,43 @@ MyArray.prototype.forEach = function (fn) {
 };
 
 MyArray.prototype.join = function (separator) {
+    const resolveSeparator = (userChoice) => {
+        if (userChoice === '') {
+            return userChoice;
+        }
+        
+        return userChoice || ',';
+    }
 
+    let stringValue = null;
+    for (let i = 0; i < this.length(); i +=1) {
+        if (!stringValue) {
+            stringValue = String(this.get(i));
+        } else {
+            stringValue =
+                stringValue +
+                resolveSeparator(separator) +
+                String(this.get(i));
+        }
+    }
+
+    return stringValue;
 };
 
 MyArray.prototype.toString = function () {
+    let stringValue = null;
+    for (let i = 0; i < this.length(); i +=1) {
+        if (!stringValue) {
+            stringValue = String(this.get(i));
+        } else {
+            stringValue =
+                stringValue +
+                ',' +
+                String(this.get(i));
+        }
+    }
 
+    return stringValue;
 };
 
 MyArray.prototype.map = function (fn) {
