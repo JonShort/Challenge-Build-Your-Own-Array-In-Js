@@ -241,7 +241,19 @@ MyArray.prototype.toString = function () {
 };
 
 MyArray.prototype.map = function (fn) {
+    const fillNewArray = (baseArray, func) => {
+        let newArray = new MyArray();
 
+        for (let i = 0; i < baseArray.length(); i += 1) {
+            const value = func(baseArray.get(i));
+
+            newArray.set(i, value);
+        }
+
+        return newArray;
+    };
+
+    return fillNewArray(this, fn);
 };
 
 MyArray.prototype.filter = function (fn) {
