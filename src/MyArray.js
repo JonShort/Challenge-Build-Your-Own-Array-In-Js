@@ -28,13 +28,13 @@ MyArray.prototype.set = function (index, value) {
 
     if (isExistingItem) {
         this.elements[index] = value;
-        return null;
+        return;
     }
 
     if (isValidIndex) {
         this.elements[index] = value;
         this.size = (index + 1);
-        return null;
+        return;
     }
 
     throw `Can't set value of item in position ${index} - index is below 0`;
@@ -316,11 +316,29 @@ MyArray.prototype.every = function (fn) {
 };
 
 MyArray.prototype.fill = function (value, start, end) {
+    const first = start || 0;
+    const last = end || this.length();
 
+    for (let i = first; i < last; i += 1) {
+        this.set(i, value);
+    }
+
+    return;
 };
 
 MyArray.prototype.reverse = function () {
+    for (let i = 0; i < this.length() / 2; i += 1) {
+        const lastKey = this.length() - 1;
+        const lowKey = i;
+        const highKey = lastKey - i;
+        const lowValue = this.get(lowKey);
+        const highValue = this.get(highKey);
 
+        this.set(lowKey, highValue);
+        this.set(highKey, lowValue);
+    }
+
+    return;
 };
 
 MyArray.prototype.shift = function () {
