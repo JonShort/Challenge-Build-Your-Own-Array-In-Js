@@ -247,7 +247,7 @@ MyArray.prototype.map = function (fn) {
         for (let i = 0; i < baseArray.length(); i += 1) {
             const value = func(baseArray.get(i));
 
-            newArray.set(i, value);
+            newArray.push(value);
         }
 
         return newArray;
@@ -257,15 +257,62 @@ MyArray.prototype.map = function (fn) {
 };
 
 MyArray.prototype.filter = function (fn) {
+    const fillNewArray = (baseArray, func) => {
+        let newArray = new MyArray();
 
+        for (let i = 0; i < baseArray.length(); i += 1) {
+            const currentValue = baseArray.get(i);
+            const funcIsSatisfied = func(currentValue);
+
+            if(funcIsSatisfied) {
+                newArray.push(currentValue);
+            }
+        }
+
+        return newArray;
+    };
+
+    return fillNewArray(this, fn);
 };
 
 MyArray.prototype.some = function (fn) {
+    const checkValues = (baseArray, func) => {
+        let doSomeMatch = false;
 
+        for (let i = 0; i < baseArray.length(); i += 1) {
+            const currentValue = baseArray.get(i);
+            const funcIsSatisfied = func(currentValue);
+    
+            if(funcIsSatisfied) {
+                doSomeMatch = true;
+                break;
+            }
+        }
+
+        return doSomeMatch;
+    }
+
+    return checkValues(this, fn);
 };
 
 MyArray.prototype.every = function (fn) {
+    const checkValues = (baseArray, func) => {
+        let doAllMatch = true;
 
+        for (let i = 0; i < baseArray.length(); i += 1) {
+            const currentValue = baseArray.get(i);
+            const funcIsSatisfied = func(currentValue);
+    
+            if(!funcIsSatisfied) {
+                doAllMatch = false;
+                break;
+            }
+        }
+
+        return doAllMatch;
+    }
+
+    return checkValues(this, fn);
 };
 
 MyArray.prototype.fill = function (value, start, end) {
