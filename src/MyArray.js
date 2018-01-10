@@ -403,9 +403,61 @@ MyArray.prototype.unshift = function (element) {
 };
 
 MyArray.prototype.slice = function (start, end) {
+    const startPos = start || 0;
+    const endPos = end || this.length();
+    const size = endPos - startPos;
+    // Initiate the array to expect the correct size
+    let newArray = new MyArray(size);
 
+    // Iterate through the base array, from start to end and push the new values into the new array
+    for (let i = startPos; i < endPos; i += 1) {
+        newArray.push(this.get(i));
+    }
+
+    return newArray;
 };
 
-MyArray.prototype.splice = function (start, deleteCount) {
+MyArray.prototype.splice = function (start, deleteCount, ...items) {
+    const resolveDeleteNum = () => {
+        if (deleteCount === 0) {
+            return deleteCount;
+        }
 
+        if (deleteCount) {
+            return deleteCount;
+        }
+
+        return this.length() - start;
+    };
+    const deleteNum = resolveDeleteNum();
+
+    // Determine where to copy value from, and how many items will be copied
+    const copyFrom = start + deleteNum;
+    const copyAmount = this.length() - copyFrom;
+
+    const newArray = new MyArray();
+
+    // Check if copying is needed
+    if (copyAmount > 0) {
+
+        // Fill a new array with the values which will be deleted in the next for loop
+        for (let i = 0; i < deleteNum; i += 1) {
+            newArray.push(this.get(start + i));
+        }
+
+        // Iterate through the items to be copied & copy the value to the correct key
+        for (let i = 0; i < copyAmount; i += 1) {
+            const toSet = start + i;
+            const toGet = copyFrom + i;
+
+            this.set(toSet, this.get(toGet));
+        }
+    }
+
+    // Remove the number of items which were removed
+    for (let i = 0; i < deleteNum; i += 1) {
+        this.pop();
+    }
+
+    return newArray;
 };
