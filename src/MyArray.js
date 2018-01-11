@@ -40,15 +40,15 @@ MyArray.prototype.set = function (index, value) {
     throw `Can't set value of item in position ${index} - index is below 0`;
 };
 
-MyArray.of = function (...args) {
-    const baseArray = new MyArray(args.length);
-    let populatedArray = baseArray;
+MyArray.of = function () {
+    const argumentsArray = Array.prototype.slice.call(arguments);
+    const newArray = new MyArray(argumentsArray.length);
 
-    for (i = 0; i < args.length; i += 1) {
-        populatedArray.set(i, args[i]);
+    for (i = 0; i < argumentsArray.length; i += 1) {
+        newArray.set(i, argumentsArray[i]);
     }
 
-    return populatedArray;
+    return newArray;
 };
 
 MyArray.prototype.pop = function () {
