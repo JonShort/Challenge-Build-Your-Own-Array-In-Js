@@ -404,15 +404,14 @@ MyArray.prototype.unshift = function (element) {
 
 MyArray.prototype.slice = function (start, end) {
     const checkExists = (v, fallback) => {
-        if (v === 0) {return v};
-        if (v) {return v};
+        if (v || v === 0) {return v};
         return fallback;
     };
     const startPos = checkExists(start, 0);
     const endPos = checkExists(end, this.length());
     const size = endPos - startPos;
-    // Initiate the array to expect the correct size
-    let newArray = new MyArray(size);
+    // Create a new array to populate
+    const newArray = new MyArray();
 
     // Iterate through the base array, from start to end and push the new values into the new array
     for (let i = startPos; i < endPos; i += 1) {
@@ -422,12 +421,16 @@ MyArray.prototype.slice = function (start, end) {
     return newArray;
 };
 
-MyArray.prototype.splice = function (start, deleteCount, ...items) {
-    // If deleteCount wasn't provided, get the number of items after start
-    const resolvedDeleteCount = (deleteCount || deleteCount === 0) || this.length() - start;
+MyArray.prototype.splice = function (start, deleteCount) {
+    const checkExists = (v, fallback) => {
+        if (v || v === 0) {return v};
+        return fallback;
+    };
+    // If deleteCount wasn't provided, get the remaining of items after start
+    const numToDelete = checkExists(deleteCount, (this.length() - start));
 
     // Determine where to stop deleting values
-    const end = start + resolvedDeleteCount;
+    const end = start + numToDelete;
 
     // Make a new array with items which will be deleted
     const slicedItems = this.slice(start, end);
@@ -439,7 +442,8 @@ MyArray.prototype.splice = function (start, deleteCount, ...items) {
     const postDeleteItems = this.slice(end, this.length());
 
     // Make a new MyArray of argument items
-    const argumentItems = new MyArray.of(...items);
+    const argumentsArray = Array.prototype.slice.call(arguments);
+    const argumentItems = new MyArray.of(...argumentsArray.slice(2));
 
     // Make a new array, adding pre-delete items with argument items
     const preWithArguments = preDeleteItems.concat(argumentItems);
