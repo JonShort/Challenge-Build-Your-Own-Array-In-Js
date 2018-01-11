@@ -403,8 +403,13 @@ MyArray.prototype.unshift = function (element) {
 };
 
 MyArray.prototype.slice = function (start, end) {
-    const startPos = start || 0;
-    const endPos = end || this.length();
+    const checkExists = (v, fallback) => {
+        if (v === 0) {return v};
+        if (v) {return v};
+        return fallback;
+    };
+    const startPos = checkExists(start, 0);
+    const endPos = checkExists(end, this.length());
     const size = endPos - startPos;
     // Initiate the array to expect the correct size
     let newArray = new MyArray(size);
@@ -418,46 +423,33 @@ MyArray.prototype.slice = function (start, end) {
 };
 
 MyArray.prototype.splice = function (start, deleteCount, ...items) {
-    const resolveDeleteNum = () => {
-        if (deleteCount === 0) {
-            return deleteCount;
-        }
+    // If deleteCount wasn't provided, get the number of items after start
+    const resolvedDeleteCount = (deleteCount || deleteCount === 0) || this.length() - start;
 
-        if (deleteCount) {
-            return deleteCount;
-        }
+    // Determine where to stop deleting values
+    const end = start + resolvedDeleteCount;
 
-        return this.length() - start;
-    };
-    const deleteNum = resolveDeleteNum();
+    // Make a new array with items which will be deleted
+    const slicedItems = this.slice(start, end);
 
-    // Determine where to copy value from, and how many items will be copied
-    const copyFrom = start + deleteNum;
-    const copyAmount = this.length() - copyFrom;
+    // Make a new array with items in positions before those which will be deleted
+    const preDeleteItems = this.slice(0, start);
 
-    const newArray = new MyArray();
+    // Make a new array with items in positions after those which will be deleted
+    const postDeleteItems = this.slice(end, this.length());
 
-    // Check if copying is needed
-    if (copyAmount > 0) {
+    // Make a new MyArray of argument items
+    const argumentItems = new MyArray.of(...items);
 
-        // Fill a new array with the values which will be deleted in the next for loop
-        for (let i = 0; i < deleteNum; i += 1) {
-            newArray.push(this.get(start + i));
-        }
+    // Make a new array, adding pre-delete items with argument items
+    const preWithArguments = preDeleteItems.concat(argumentItems);
 
-        // Iterate through the items to be copied & copy the value to the correct key
-        for (let i = 0; i < copyAmount; i += 1) {
-            const toSet = start + i;
-            const toGet = copyFrom + i;
+    // Make a new array, with the values which weren't deleted added to pre + argument array
+    const finalArray = preWithArguments.concat(postDeleteItems);
 
-            this.set(toSet, this.get(toGet));
-        }
-    }
+    // Change the elements in the parent array
+    this.elements = finalArray.elements;
+    this.size = finalArray.size;
 
-    // Remove the number of items which were removed
-    for (let i = 0; i < deleteNum; i += 1) {
-        this.pop();
-    }
-
-    return newArray;
+    return slicedItems;
 };
