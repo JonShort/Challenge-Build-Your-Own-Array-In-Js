@@ -195,22 +195,30 @@ MyArray.prototype.equals = function (other) {
 };
 
 MyArray.prototype.forEach = function (fn) {
+    // Iterate through entire array, running func argument against each value
     for (let i = 0; i < this.length(); i += 1) {
         fn(this.get(i), i);
     }
+
+    return;
 };
 
 MyArray.prototype.join = function (separator) {
+    // Resolve the current separator defaulting to comma (empty string is also a valid option)
     const resolveSeparator = (userChoice) => {
-        if (userChoice === '') {
-            return userChoice;
-        }
+        if (userChoice === '' || userChoice) {return userChoice;}
         
-        return userChoice || ',';
+        return ',';
     }
 
     let stringValue = null;
+
+    // Iterate through the entire array
     for (let i = 0; i < this.length(); i +=1) {
+        /*
+            If stringValue is still null (no items added), add a string version of the item at current index,
+            otherwise add a separator between the two values
+        */
         if (!stringValue) {
             stringValue = String(this.get(i));
         } else {
@@ -225,107 +233,93 @@ MyArray.prototype.join = function (separator) {
 };
 
 MyArray.prototype.toString = function () {
-    let stringValue = null;
-    for (let i = 0; i < this.length(); i +=1) {
-        if (!stringValue) {
-            stringValue = String(this.get(i));
-        } else {
-            stringValue =
-                stringValue +
-                ',' +
-                String(this.get(i));
-        }
-    }
-
-    return stringValue;
+    // Run the join function created previously
+    const stringArray = this.join();
+    return stringArray;
 };
 
 MyArray.prototype.map = function (fn) {
-    const fillNewArray = (baseArray, func) => {
-        let newArray = new MyArray();
+    // Create empty new array
+    let newArray = new MyArray();
 
-        for (let i = 0; i < baseArray.length(); i += 1) {
-            const value = func(baseArray.get(i));
+    // Iterate through the entire array and run the func argument against each value, storing the result
+    for (let i = 0; i < this.length(); i += 1) {
+        const value = fn(this.get(i));
 
-            newArray.push(value);
-        }
+        // Push the result of the function onto the new array created
+        newArray.push(value);
+    }
 
-        return newArray;
-    };
-
-    return fillNewArray(this, fn);
+    return newArray;
 };
 
 MyArray.prototype.filter = function (fn) {
-    const fillNewArray = (baseArray, func) => {
-        let newArray = new MyArray();
+    // Create empty new array
+    let newArray = new MyArray();
 
-        for (let i = 0; i < baseArray.length(); i += 1) {
-            const currentValue = baseArray.get(i);
-            const funcIsSatisfied = func(currentValue);
+    // Iterate through the entire array and run the func argument against each value
+    for (let i = 0; i < this.length(); i += 1) {
+        const currentValue = this.get(i);
+        const funcIsSatisfied = fn(currentValue);
 
-            if(funcIsSatisfied) {
-                newArray.push(currentValue);
-            }
+        // Is the function returns true, add the current value to the new array
+        if(funcIsSatisfied) {
+            newArray.push(currentValue);
         }
+    }
 
-        return newArray;
-    };
-
-    return fillNewArray(this, fn);
+    return newArray;
 };
 
 MyArray.prototype.some = function (fn) {
-    const checkValues = (baseArray, func) => {
-        // By default, assume no values match the statement in the fn argument
-        let doSomeMatch = false;
+    // By default, assume no values match the statement in the fn argument
+    let doSomeMatch = false;
 
-        // Iterate through the array
-        for (let i = 0; i < baseArray.length(); i += 1) {
-            const currentValue = baseArray.get(i);
-            const funcIsSatisfied = func(currentValue);
-    
-            if(funcIsSatisfied) {
-                doSomeMatch = true;
-                break;
-            }
+    // Iterate through the array and run the func argument against each value
+    for (let i = 0; i < this.length(); i += 1) {
+        const currentValue = this.get(i);
+        const funcIsSatisfied = fn(currentValue);
+
+        // If function returns true, modify the doSomeMatch variable and stop the loop
+        if(funcIsSatisfied) {
+            doSomeMatch = true;
+            break;
         }
-
-        return doSomeMatch;
     }
 
-    return checkValues(this, fn);
+    return doSomeMatch;
 };
 
 MyArray.prototype.every = function (fn) {
-    const checkValues = (baseArray, func) => {
-        // By default, assume values match the statement within the fn argument
-        let doAllMatch = true;
+    // By default, assume values match the statement within the fn argument
+    let doAllMatch = true;
 
-        // Iterate through array
-        for (let i = 0; i < baseArray.length(); i += 1) {
-            const currentValue = baseArray.get(i);
-            const funcIsSatisfied = func(currentValue);
+    // Iterate through array, running the function on each value
+    for (let i = 0; i < this.length(); i += 1) {
+        const currentValue = this.get(i);
+        const funcIsSatisfied = fn(currentValue);
 
-            // If function returns false, modify the variable and stop the loop
-            if(!funcIsSatisfied) {
-                doAllMatch = false;
-                break;
-            }
+        // If function returns false, modify the doAllMatch variable and stop the loop
+        if(!funcIsSatisfied) {
+            doAllMatch = false;
+            break;
         }
-
-        return doAllMatch;
     }
 
-    return checkValues(this, fn);
-};
+    return doAllMatch;
+}
 
 MyArray.prototype.fill = function (value, start, end) {
-    // If no arguments exist, start and end are relative to array
-    const first = start || 0;
-    const last = end || this.length();
+    const checkExists = (v, fallback) => {
+        if (v || v === 0) {return v};
+        return fallback;
+    };
 
-    // Iterate from first to last, setting each key to the value argument
+    // If no arguments exist, start and end are relative to array
+    const first = checkExists(start, 0);
+    const last = checkExists(end, this.length());
+
+    // Iterate from first to last, setting each index to the argument value
     for (let i = first; i < last; i += 1) {
         this.set(i, value);
     }
@@ -336,21 +330,20 @@ MyArray.prototype.fill = function (value, start, end) {
 MyArray.prototype.reverse = function () {
     /*
         Iterate through half the array, keeping track of both the 
-        current loop iteration (lowKey - iteration number) and
-        it's 'mirror' (highkey - greatest position in the array minus iteration number)
+        current item index (same as i) and it's 'mirror' (last item in array minus i)
     */
     for (let i = 0; i < this.length() / 2; i += 1) {
-        const lastKey = this.length() - 1;
-        const lowKey = i;
-        const highKey = lastKey - i;
+        const lastIndex = this.length() - 1;
+        const lowIndex = i;
+        const highIndex = lastIndex - i;
 
         // Get the items from each position
-        const lowValue = this.get(lowKey);
-        const highValue = this.get(highKey);
+        const lowValue = this.get(lowIndex);
+        const highValue = this.get(highIndex);
 
-        // Set the items in the correct positions
-        this.set(lowKey, highValue);
-        this.set(highKey, lowValue);
+        // Set the low 
+        this.set(lowIndex, highValue);
+        this.set(highIndex, lowValue);
     }
 
     return;
@@ -365,7 +358,7 @@ MyArray.prototype.shift = function () {
     // Get the value at position 0 (this will be removed)
     const removedValue = this.get(0);
 
-    // Iterate through the array (increasing), and copy each value to the position 1 above the current
+    // Iterate through each array value (increasing), and copy the value below it e.g. 1, 2, 3 > 2, 3, 3
     for (let i = 0; i < this.length(); i += 1) {
         const newValue = this.get(i + 1);
         this.set(i, newValue);
@@ -386,17 +379,17 @@ MyArray.prototype.unshift = function (element) {
         return;
     }
 
-    // Get the current last item and push a copy onto the end of the array
+    // Add a copy of the current final item onto the end of the array
     const finalItemKey = this.length() - 1;
     this.push(this.get(finalItemKey));
 
-    // Iterate through the array (decreasing), and copy each value to the position 1 below the current
+    // Iterate through each array value (decreasing), and copy the value below it e.g. 1, 2, 3 > 1, 1, 2
     for (let i = finalItemKey; i > 0; i -= 1) {
         const newValue = this.get(i - 1);
         this.set(i, newValue);
     }
 
-    // Set the value at position 0 to argument value
+    // Set the first item in the array to the argument's value
     this.set(0, element);
 
     return;
@@ -407,9 +400,11 @@ MyArray.prototype.slice = function (start, end) {
         if (v || v === 0) {return v};
         return fallback;
     };
+
+    // Get start and end position of slice
     const startPos = checkExists(start, 0);
     const endPos = checkExists(end, this.length());
-    const size = endPos - startPos;
+
     // Create a new array to populate
     const newArray = new MyArray();
 
@@ -426,20 +421,20 @@ MyArray.prototype.splice = function (start, deleteCount) {
         if (v || v === 0) {return v};
         return fallback;
     };
-    // If deleteCount wasn't provided, get the remaining of items after start
+    // If deleteCount wasn't provided, get the remaining items after start value
     const numToDelete = checkExists(deleteCount, (this.length() - start));
 
     // Determine where to stop deleting values
     const end = start + numToDelete;
 
     // Make a new array with items which will be deleted
-    const slicedItems = this.slice(start, end);
+    const deletedItems = this.slice(start, end);
 
     // Make a new array with items in positions before those which will be deleted
     const preDeleteItems = this.slice(0, start);
 
     // Make a new array with items in positions after those which will be deleted
-    const postDeleteItems = this.slice(end, this.length());
+    const postDeleteItems = this.slice(end);
 
     // Make a new MyArray of argument items
     const argumentsArray = Array.prototype.slice.call(arguments);
@@ -455,5 +450,5 @@ MyArray.prototype.splice = function (start, deleteCount) {
     this.elements = finalArray.elements;
     this.size = finalArray.size;
 
-    return slicedItems;
+    return deletedItems;
 };
