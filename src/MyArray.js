@@ -8,42 +8,54 @@ function MyArray(initialCapacity) {
 }
 
 MyArray.prototype.length = function () {
+    // Return current array size
     return this.size;
 };
 
 MyArray.prototype.push = function (value) {
-    const lastItem = this.length();
+    // Get the index where the new value will be set
+    const newValueIndex = this.length();
 
-    this.elements[lastItem] = value;
+    // Set the value at the index, and bump size by 1
+    this.elements[newValueIndex] = value;
     this.size += 1;
 };
 
 MyArray.prototype.get = function (index) {
+    // Get the value at the current index
     return this.elements[index];
 };
 
 MyArray.prototype.set = function (index, value) {
+    // Check that the index chosen is valid
     const isValidIndex = index >= 0;
+
+    // Set bool if the index argument already exists in the array
     const isExistingItem = isValidIndex && index < this.length();
 
+    // Replace the value that exists in the array with the argument value
     if (isExistingItem) {
         this.elements[index] = value;
         return;
     }
 
+    // Set the value at the argument index to the argument value, and increase size of array upto this new index
     if (isValidIndex) {
         this.elements[index] = value;
         this.size = (index + 1);
         return;
     }
 
+    // Throw an error if neither if statement is satisfied
     throw `Can't set value of item in position ${index} - index is below 0`;
 };
 
 MyArray.of = function () {
+    // Capture all arguments as a new array
     const argumentsArray = Array.prototype.slice.call(arguments);
     const newArray = new MyArray(argumentsArray.length);
 
+    // Iterate through arguments and set each value into the new array
     for (i = 0; i < argumentsArray.length; i += 1) {
         newArray.set(i, argumentsArray[i]);
     }
@@ -52,146 +64,151 @@ MyArray.of = function () {
 };
 
 MyArray.prototype.pop = function () {
+    // Return undefined if the array is empty
     if (this.length() <= 0) {
         return undefined;
     }
 
+    // Get the index and value of the last item in the array
     const finalIndex = (this.length() - 1);
     const finalItem = this.get(finalIndex);
 
-    this.elements[finalIndex] = undefined;
+    // Set last item to undefined, and reduce array size by 1
+    this.set(finalIndex, undefined);
     this.size -= 1;
 
+    // Return value of the now-removed item
     return finalItem;
 };
 
 MyArray.prototype.concat = function (other) {
-    const overallLength = this.length() + other.length();
-    let newArray = new MyArray(overallLength);
+    // Store the original array
+    const newArray = this;
 
-    for (let i = 0; i < overallLength; i += 1) {
-        if (i < this.length()) {
-            newArray.set(i, this.get(i));
-        } else {
-            newArray.set(i, other.get(i - this.length()));
-        }
+    // Iterate through the length of the argument array, pushing to to the new array
+    for (let i = 0; i < other.length(); i += 1) {
+        newArray.push(other.get(i));
     }
 
     return newArray;
 };
 
 MyArray.prototype.indexOf = function (element) {
-    const getIndex = (matcher) => {
-        let index = -1;
-        for (let i = 0; i < this.length(); i += 1) {
-            const value = this.get(i);
-            if (value === matcher) {
-                index = i;
-                break;
-            }
+    // Assume the value is not found in the array
+    let index = -1;
+
+    // Iterate (increasing) through the array
+    for (let i = 0; i < this.length(); i += 1) {
+        const value = this.get(i);
+
+        // If current index value is equal to the argument value, break for loop and set index
+        if (value === element) {
+            index = i;
+            break;
         }
+    }
 
-        return index;
-    };
-
-    return getIndex(element);
+    return index;
 };
 
 MyArray.prototype.lastIndexOf = function (element) {
-    const getLastIndex = (matcher) => {
-        let index = -1;
+    // Assume the value is not found in the array
+    let index = -1;
 
-        for (let i = this.length(); i > 0; i -= 1) {
-            const value = this.get(i);
-            if (value === matcher) {
-                index = i;
-                break;
-            }
+    // Iterate (decreasing) through the array
+    for (let i = this.length(); i > 0; i -= 1) {
+        const value = this.get(i);
+
+        // If current index value is equal to the argument value, break for loop and set index
+        if (value === element) {
+            index = i;
+            break;
         }
+    }
 
-        return index;
-    };
-
-    return getLastIndex(element);
+    return index;
 };
 
 MyArray.prototype.includes = function (element) {
-    const doesExist = (matcher) => {
-        let exists = false;
+    // Assume the value is not found in the array
+    let exists = false;
 
-        for (let i = 0; i < this.length(); i += 1) {
-            const value = this.get(i);
-            if (value === matcher) {
-                exists = true;
-                break;
-            }
+    // Iterate through the array
+    for (let i = 0; i < this.length(); i += 1) {
+        const value = this.get(i);
+
+        // If current index value is equal to the argument value, break for loop and set bool
+        if (value === element) {
+            exists = true;
+            break;
         }
+    }
 
-        return exists;
-    };
-
-    return doesExist(element);
+    return exists;
 };
 
 MyArray.prototype.find = function (fn) {
-    const getFirst = (func) => {
-        let value = undefined;
+    // Assume the value is not found in the array
+    let value = undefined;
 
-        for (let i = 0; i < this.length(); i += 1) {
-            const indexValue = this.get(i);
-            if (func(indexValue)) {
-                value = indexValue;
-                break;
-            }
+    // Iterate through the array
+    for (let i = 0; i < this.length(); i += 1) {
+        const indexValue = this.get(i);
+
+        // Run function against the current index value, if it returns true, break the for loop
+        if (fn(indexValue)) {
+            value = indexValue;
+            break;
         }
+    }
 
-        return value;
-    };
-
-    return getFirst(fn);
+    return value;
 };
 
 MyArray.prototype.findIndex = function (fn) {
-    const getIndex = (func) => {
-        let index = -1;
+    // Assume the value is not found in the array
+    let index = -1;
 
-        for (let i = 0; i < this.length(); i += 1) {
-            const value = this.get(i);
-            if (func(value)) {
-                index = i;
-                break;
-            }
+    // Iterate through the array
+    for (let i = 0; i < this.length(); i += 1) {
+        const value = this.get(i);
+
+        // Run function against the current index value, if it returns true, break the for loop
+        if (fn(value)) {
+            index = i;
+            break;
         }
+    }
 
-        return index;
-    };
-
-    return getIndex(fn);
+    return index;
 };
 
 MyArray.prototype.equals = function (other) {
-    const thisLength = this.length();
-    const otherLength = other.length();
-    const hasDifferentLength = thisLength !== otherLength;
+    // Store boolean to distinguish if lengths are the same
+    const hasSameLength = this.length() === other.length();
 
-    const progressiveCompare = (array) => {
-        let matches = true;
+    const equalsCompare = (array) => {
+        // Assume all values match
+        let allValuesMatch = true;
 
+        // Iterate through entire array, set bool & break if the values don't match
         for (let i = 0; i < this.length(); i += 1) {
             if (this.get(i) !== array.get(i)) {
-                matches = false;
+                allValuesMatch = false;
                 break;
             }
         }
 
-        return matches;
+        return allValuesMatch;
     };
 
-    if (hasDifferentLength) {
+    // Return true if the lengths are different
+    if (!hasSameLength) {
         return false;
     }
 
-    return progressiveCompare(other);
+    // Execute function comparing the two arrays
+    return equalsCompare(other);
 };
 
 MyArray.prototype.forEach = function (fn) {
